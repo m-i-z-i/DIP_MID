@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSE 4833 — Digital Image Processing | Exam Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --surface3: #1e2d42;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --accent3: #a78bfa;
+    --accent4: #34d399;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+    --q-bg: #0f1f35;
+    --q-border: #1e4d6b;
+    --a-bg: #0d2218;
+    --a-border: #1a4d32;
+    --formula-bg: #1a1230;
+    --formula-border: #4c1d95;
+    --warn-bg: #1f1410;
+    --warn-border: #7c2d12;
+    --grid: rgba(0,212,255,0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── SIDEBAR NAV ── */
+  #sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 260px;
+    background: var(--surface);
+    border-right: 1px solid rgba(0,212,255,0.1);
+    padding: 24px 0;
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #sidebar .logo {
+    padding: 0 24px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 16px;
+  }
+  #sidebar .logo .course {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  #sidebar .logo .title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--text);
+    margin-top: 4px;
+    line-height: 1.3;
+  }
+
+  #sidebar nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 24px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  #sidebar nav a:hover, #sidebar nav a.active {
+    color: var(--accent);
+    background: rgba(0,212,255,0.06);
+    border-left-color: var(--accent);
+  }
+  #sidebar nav a .num {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    background: rgba(0,212,255,0.15);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+    min-width: 24px;
+    text-align: center;
+  }
+
+  /* ── MAIN CONTENT ── */
+  #main {
+    margin-left: 260px;
+    padding: 0 48px 80px;
+    max-width: 1100px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 60px 0 48px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 56px;
+  }
+  .hero .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.25);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 52px;
+    line-height: 1.1;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    font-size: 16px;
+    color: var(--text-muted);
+    max-width: 580px;
+    margin-bottom: 28px;
+  }
+  .hero-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+  .hero-pills .pill {
+    background: var(--surface2);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 100px;
+  }
+
+  /* ── CHAPTER SECTIONS ── */
+  .chapter {
+    margin-bottom: 72px;
+    scroll-margin-top: 24px;
+  }
+
+  .chapter-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .chapter-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.2);
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-top: 6px;
+    white-space: nowrap;
+  }
+  .chapter h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 34px;
+    color: #fff;
+    line-height: 1.2;
+  }
+  .chapter h2 .accent { color: var(--accent); }
+
+  .section-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 32px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+  }
+
+  p { color: var(--text-muted); margin-bottom: 12px; line-height: 1.8; }
+  strong { color: var(--text); font-weight: 600; }
+
+  /* ── FORMULA BOX ── */
+  .formula {
+    background: var(--formula-bg);
+    border: 1px solid var(--formula-border);
+    border-left: 4px solid var(--accent3);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: #c4b5fd;
+    line-height: 1.9;
+    white-space: pre-wrap;
+  }
+  .formula .flabel {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent3);
+    margin-bottom: 10px;
+    display: block;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+  }
+
+  /* ── QUESTION BOX ── */
+  .qbox {
+    background: var(--q-bg);
+    border: 1px solid var(--q-border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0 0;
+    position: relative;
+  }
+  .qbox::before {
+    content: '❓ QUESTION';
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: #60a5fa;
+    display: block;
+    margin-bottom: 10px;
+  }
+  .qbox p { color: #93c5fd; font-style: italic; margin: 0; }
+
+  /* ── ANSWER BOX ── */
+  .abox {
+    background: var(--a-bg);
+    border: 1px solid var(--a-border);
+    border-radius: 0 0 10px 10px;
+    border-top: none;
+    padding: 20px 24px;
+    margin: 0 0 20px;
+    position: relative;
+  }
+  .abox::before {
+    content: '✅ ANSWER';
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--accent4);
+    display: block;
+    margin-bottom: 10px;
+  }
+  .abox p { color: #a7f3d0; margin: 0 0 8px; }
+  .abox p:last-child { margin-bottom: 0; }
+
+  /* Q+A combined */
+  .qa-block { margin: 24px 0; }
+  .qa-block .qtitle {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent2);
+    margin-bottom: 4px;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  /* ── TABLES ── */
+  .tbl-wrap { overflow-x: auto; margin: 16px 0; border-radius: 10px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  thead tr { background: rgba(0,212,255,0.12); }
+  thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 1px solid rgba(0,212,255,0.2);
+  }
+  tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
+  tbody tr:hover { background: rgba(255,255,255,0.03); }
+  tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+  tbody td { padding: 11px 16px; color: var(--text-muted); vertical-align: top; }
+  tbody td:first-child { color: var(--text); font-weight: 500; }
+
+  /* ── INFO CARDS ── */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 20px 0; }
+  .card {
+    background: var(--surface2);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(0,212,255,0.25); }
+  .card .card-icon { font-size: 24px; margin-bottom: 10px; }
+  .card .card-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .card p { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+  /* ── STEP BOXES ── */
+  .steps { margin: 16px 0; }
+  .step {
+    display: flex;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0,212,255,0.15);
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-content { color: var(--text-muted); font-size: 14px; }
+  .step-content strong { color: var(--text); }
+
+  /* ── ALERT/NOTE ── */
+  .note {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    border-left: 4px solid var(--accent2);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 13.5px;
+    color: #fed7aa;
+  }
+  .note strong { color: var(--accent2); }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: #0d1117;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 20px 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12.5px;
+    color: #e6edf3;
+    line-height: 2;
+    white-space: pre-wrap;
+    margin: 16px 0;
+    overflow-x: auto;
+  }
+  .code-block .c-cyan { color: #79c0ff; }
+  .code-block .c-green { color: #7ee787; }
+  .code-block .c-orange { color: #ffa657; }
+  .code-block .c-pink { color: #ff79c6; }
+  .code-block .c-purple { color: #d2a8ff; }
+  .code-block .c-red { color: #ff7b72; }
+  .code-block .c-gray { color: #8b949e; }
+
+  /* highlight */
+  .hl { color: var(--accent4); font-weight: 600; }
+  .hl-r { color: #fb923c; font-weight: 600; }
+  .hl-b { color: #60a5fa; font-weight: 600; }
+  .hl-p { color: #c084fc; font-weight: 600; }
+
+  /* divider */
+  hr { border: none; border-top: 1px solid rgba(255,255,255,0.05); margin: 40px 0; }
+
+  /* tag */
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Space Mono', monospace;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: 4px;
+  }
+  .tag-cyan { background: rgba(0,212,255,0.15); color: var(--accent); border: 1px solid rgba(0,212,255,0.25); }
+  .tag-green { background: rgba(52,211,153,0.15); color: var(--accent4); border: 1px solid rgba(52,211,153,0.25); }
+  .tag-orange { background: rgba(251,146,60,0.15); color: #fb923c; border: 1px solid rgba(251,146,60,0.25); }
+  .tag-purple { background: rgba(167,139,250,0.15); color: var(--accent3); border: 1px solid rgba(167,139,250,0.25); }
+
+  /* print button */
+  #print-btn {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 100px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    z-index: 200;
+    box-shadow: 0 4px 20px rgba(0,212,255,0.4);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #print-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,212,255,0.5); }
+
+  /* scroll indicator */
+  #progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    z-index: 999;
+    transition: width 0.1s;
+  }
+
+  @media print {
+    #sidebar, #print-btn, #progress { display: none !important; }
+    #main { margin-left: 0; padding: 20px; }
+    body::before { display: none; }
+    .chapter { page-break-inside: avoid; }
+  }
+
+  @media (max-width: 900px) {
+    #sidebar { display: none; }
+    #main { margin-left: 0; padding: 20px; }
+  }
+
+  .huffman-tree {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: #a7f3d0;
+    padding: 16px;
+    background: var(--a-bg);
+    border-radius: 8px;
+    margin: 8px 0;
+  }
+
+  ul.nice-list { padding-left: 20px; margin: 8px 0; }
+  ul.nice-list li { color: var(--text-muted); margin-bottom: 6px; font-size: 14px; }
+  ul.nice-list li strong { color: var(--text); }
+
+  .grid-img {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    max-width: 280px;
+    margin: 12px 0;
+  }
+  .grid-cell {
+    background: var(--surface3);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 8px 4px;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    border-radius: 4px;
+  }
+  .grid-cell.in-v {
+    background: rgba(0,212,255,0.18);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="logo">
+    <div class="course">UIU · CSE 4833/4883</div>
+    <div class="title">Digital Image Processing<br>Exam Notes</div>
+  </div>
+  <nav>
+    <a href="#ch1"><span class="num">01</span> Spatial vs Intensity Res.</a>
+    <a href="#ch2"><span class="num">02</span> ANN Layer Design</a>
+    <a href="#ch3"><span class="num">03</span> Pixel Connectivity</a>
+    <a href="#ch4"><span class="num">04</span> ANN Forward Pass</a>
+    <a href="#ch5"><span class="num">05</span> Image Compression</a>
+    <a href="#ch6"><span class="num">06</span> Huffman Coding</a>
+    <a href="#ch7"><span class="num">07</span> Confusion Matrix</a>
+    <a href="#ch8"><span class="num">08</span> DIP Taxonomy</a>
+    <a href="#ch9"><span class="num">09</span> Quick Reference</a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="badge">📐 Exam Preparation Guide</div>
+    <h1>Digital Image<br><span>Processing</span></h1>
+    <p>Complete notes with formulas, worked examples, and Q&A for CSE 4833/4883 at United International University (UIU).</p>
+    <div class="hero-pills">
+      <span class="pill">🏫 UIU · Dept. of CSE</span>
+      <span class="pill">📚 Class Tests + Mid-Terms</span>
+      <span class="pill">🧠 9 Chapters</span>
+      <span class="pill">✅ All Q&A Included</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       CHAPTER 1 — SPATIAL vs INTENSITY RESOLUTION
+  ═══════════════════════════════════════════════ -->
+  <section class="chapter" id="ch1">
+    <div class="chapter-header">
+      <span class="chapter-num">CH 01</span>
+      <h2>Spatial Resolution vs.<br><span class="accent">Intensity Resolution</span></h2>
+    </div>
+
+    <div class="section-title">Core Definitions</div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <div class="card-title">Spatial Resolution</div>
+        <p>Ability to distinguish fine spatial details. Determined by pixel density (how small a feature can be resolved). <strong>High spatial res → see thin lines, cracks, leaf veins, sharp boundaries.</strong></p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎨</div>
+        <div class="card-title">Intensity Resolution (Quantization)</div>
+        <p>Number of distinct gray/color levels per pixel. Measured in bits per pixel (bpp). <strong>High intensity res → detect subtle color/brightness differences.</strong></p>
+      </div>
+    </div>
+
+    <div class="formula">
+<span class="flabel">📐 Quantization Levels</span>Number of Levels = 2^(bits per pixel)
+
+Examples:
+  4-bit  →  2^4  =   16  levels
+  6-bit  →  2^6  =   64  levels
+  8-bit  →  2^8  =  256  levels
+ 14-bit  →  2^14 = 16,384 levels</div>
+
+    <div class="section-title">Decision Framework</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Task / Scenario</th><th>Prioritize</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Detecting fine cracks, thin lines, leaf lesions, boundaries</td><td><span class="tag tag-cyan">Spatial</span></td><td>Need to see small geometric features</td></tr>
+          <tr><td>Detecting subtle color/intensity shift (early disease, oil sheen, temperature)</td><td><span class="tag tag-orange">Intensity</span></td><td>Need fine gradient discrimination</td></tr>
+          <tr><td>Classifying surface materials by reflectance/contrast</td><td><span class="tag tag-orange">Intensity</span></td><td>Different materials → different intensity bands</td></tr>
+          <tr><td>Tracking exact oil-water boundaries</td><td><span class="tag tag-cyan">Spatial</span></td><td>Sharp edge = spatial detail</td></tr>
+          <tr><td>Early-stage chlorophyll reduction (physiological stress)</td><td><span class="tag tag-orange">Intensity</span></td><td>Subtle color change, uniform across area</td></tr>
+          <tr><td>Late-stage necrotic spots / dark lesions</td><td><span class="tag tag-cyan">Spatial</span></td><td>Small distinct regions need high spatial res</td></tr>
+          <tr><td>Barcode decoding</td><td><span class="tag tag-cyan">Spatial</span></td><td>Width/spacing of bars, binary intensity only</td></tr>
+          <tr><td>Fever screening (temperature discrimination)</td><td><span class="tag tag-orange">Intensity</span></td><td>Subtle temperature gradients, no fine edges needed</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Q1 -->
+    <div class="qa-block">
+      <div class="section-title">Exam Questions & Answers</div>
+      <div class="qtitle">Q1 — Vineyard Fungal Pathogen (Class Test)</div>
+      <div class="qbox">
+        <p>System Agro-Spatial: very high spatial resolution, 6-bit intensity (64 levels).<br>
+        System Agro-Radiometric: moderate spatial resolution, 14-bit intensity (16,384 levels).<br><br>
+        (i) Which system fails in detecting the early physiological stage?<br>
+        (ii) Which system misses small necrotic lesions?<br>
+        (iii) If goal is preventative treatment, which parameter to prioritize?</p>
+      </div>
+      <div class="abox">
+        <p><strong>(i) Agro-Spatial fails in the EARLY stage.</strong> 6-bit quantization = only 64 intensity levels. The subtle chlorophyll reflectance reduction (a slight uniform color shift) requires fine intensity discrimination. With only 64 levels, the shift goes undetected — delayed intervention results.</p>
+        <p><strong>(ii) Agro-Radiometric misses necrotic lesions.</strong> Moderate spatial resolution cannot resolve the exact boundaries and small distinct dark lesions on individual leaves. The spots are spatially small — high spatial res is needed to see them.</p>
+        <p><strong>(iii) Prioritize INTENSITY RESOLUTION.</strong> For preventative treatment, early detection is the goal. The early stage is characterized by a subtle color change. Accurately capturing small intensity shifts 5 days before visible damage allows intervention before crop loss. Spatial resolution is less critical here — the effect is uniform across leaves, not spatially small.</p>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="qa-block">
+      <div class="qtitle">Q2 — Bridge Crack Monitoring (Class Test)</div>
+      <div class="qbox">
+        <p>System A: very high spatial resolution, 4-bit intensity (16 levels).<br>
+        System B: lower spatial resolution, 14-bit intensity (16,384 levels).<br><br>
+        (i) Which misses fine cracks?  (ii) Which misclassifies surface materials?  (iii) Prioritize?</p>
+      </div>
+      <div class="abox">
+        <p><strong>(i) System B misses fine cracks.</strong> Narrow cracks are spatially thin lines. Detecting them requires HIGH spatial resolution. System B has lower spatial resolution, so fine crack detail is lost.</p>
+        <p><strong>(ii) System A misclassifies surface materials.</strong> Only 16 intensity levels (4-bit) cannot differentiate between materials that have similar-but-distinct reflectance. Proper contrast representation requires high radiometric resolution.</p>
+        <p><strong>(iii) Prioritize SPATIAL RESOLUTION.</strong> The core task is detecting narrow physical cracks — thin geometric features. These require spatial detail. Crack detection does not depend on subtle color variations; it needs precise shape resolution.</p>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="qa-block">
+      <div class="qtitle">Q3 — Oil Slick Tracking (Class Test)</div>
+      <div class="qbox">
+        <p>Sensor A: high spatial resolution, 8-bit (256 intensity levels).<br>
+        Sensor B: moderate spatial resolution, 14-bit (16,384 intensity levels).<br><br>
+        (i) Which fails at boundary edge detection?  (ii) Which confuses oily water with sun glints?  (iii) Prioritize?</p>
+      </div>
+      <div class="abox">
+        <p><strong>(i) Sensor B fails at boundary detection.</strong> Detecting the exact line where oil meets clean water is a spatial edge-detection task. Sensor B's moderate spatial resolution cannot precisely resolve this boundary.</p>
+        <p><strong>(ii) Sensor A confuses oily water with bright sun glints.</strong> Both oily water (high oil reflectance) and sun glints (specular reflection from clean water) have high brightness. Distinguishing between them requires capturing subtle reflectance differences — which needs high intensity resolution. 8-bit may not capture these fine gradients.</p>
+        <p><strong>(iii) Prioritize INTENSITY RESOLUTION.</strong> Oil thickness varies subtly and appears near-black against bright blue water. Tracking spreading oil requires detecting these subtle near-black regions against a bright background — a radiometric discrimination task, not a spatial edge task.</p>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="qa-block">
+      <div class="qtitle">Q4 — Thermal Camera Fever Screening (Mid-Term)</div>
+      <div class="qbox">
+        <p>A thermal camera measures small temperature variations on the human face for fever screening. Which parameter is more important — spatial resolution or intensity quantization?</p>
+      </div>
+      <div class="abox">
+        <p><strong>INTENSITY QUANTIZATION is more important.</strong> Temperature variations on a face are gradual (no sharp lines). The difference between normal (37°C) and fever (≥38°C) is subtle. You need many fine intensity gradations to reliably discriminate small temperature differences. Spatial resolution matters less — we only need a general face-region reading, not fine geometric detail.</p>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="qa-block">
+      <div class="qtitle">Q5 — Barcode Scanning (Mid-Term)</div>
+      <div class="qbox">
+        <p>Capturing a barcode image for payment. Which is more critical — sampling rate (spatial resolution) or quantization levels (intensity resolution)?</p>
+      </div>
+      <div class="abox">
+        <p><strong>SAMPLING RATE (spatial resolution) is more critical.</strong> Barcodes encode information through the precise widths and spacings of black/white bars. Missing fine spatial detail means misreading bar widths = decoding errors. Quantization is secondary — barcodes are fundamentally binary (black OR white), requiring only 2 intensity levels. More quantization levels don't help.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════════
+       CHAPTER 2 — ANN LAYER DESIGN
+  ═══════════════════════════════════════════════ -->
+  <section class="chapter" id="ch2">
+    <div class="chapter-header">
+      <span class="chapter-num">CH 02</span>
+      <h2>ANN Input / Output<br><span class="accent">Layer Design</span></h2>
+    </div>
+
+    <div class="section-title">Key Formulas</div>
+    <div class="formula">
+<span class="flabel">📐 Neuron Count Formulas</span>Input Neurons  = (Image Width × Image Height) / (Block Width × Block Height)  ×  Features per Block
+
+Output Neurons = Number of output classes
+
+Example:
+  48×48 image, 3×3 non-overlapping blocks, 2 features/block, 10 classes
+  → Blocks     = (48×48) / (3×3) = 2304 / 9 = 256
+  → Input      = 256 × 2 = 512 neurons
+  → Output     = 10 neurons</div>
+
+    <div class="section-title">Output Activation Functions</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Task Type</th><th>Activation</th><th>Formula</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Multi-class (mutually exclusive)</td><td><span class="tag tag-cyan">Softmax</span></td><td>e^xi / Σe^xj</td><td>Outputs sum to 1; exactly one class</td></tr>
+          <tr><td>Binary classification</td><td><span class="tag tag-orange">Sigmoid</span></td><td>1 / (1 + e^-x)</td><td>Single probability in (0,1)</td></tr>
+          <tr><td>Multi-label (independent)</td><td><span class="tag tag-orange">Sigmoid (each)</span></td><td>1 / (1 + e^-xi)</td><td>Each output independent</td></tr>
+          <tr><td>Regression</td><td><span class="tag tag-green">Linear</span></td><td>f(x) = x</td><td>Unbounded continuous output</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Exam Questions & Answers</div>
+
+    <div class="qa-block">
+      <div class="qtitle">Q1 — Satellite Image Classification (48×48, 3×3 blocks, 2 features, 10 classes)</div>
+      <div class="qbox"><p>A satellite system captures 48×48 grayscale images. Non-overlapping 3×3 blocks, each producing 2 features (mean intensity + edge strength). Classify into 10 land-use categories. How many input/output neurons? Best output activation?</p></div>
+      <div class="abox">
+        <p><strong>Step 1 — Count blocks:</strong><br>
+        Number of blocks = (48 × 48) / (3 × 3) = 2304 / 9 = <span class="hl">256 blocks</span></p>
+        <p><strong>Step 2 — Count features:</strong><br>
+        Features = 256 × 2 = <span class="hl">512</span></p>
+        <p><strong>Input Layer = 512 neurons</strong></p>
+        <p><strong>Output Layer = 10 neurons</strong> (one per land-use category)</p>
+        <p><strong>Activation = Softmax</strong> — multi-class, mutually exclusive; each image belongs to exactly one land-use category; outputs sum to 1.</p>
+      </div>
+    </div>
+
+    <div class="qa-block">
+      <div class="qtitle">Q2 — Dataset Classification (24×24, 4-pixel blocks, 7 classes)</div>
+      <div class="qbox"><p>24×24 pixel images. Each 4-pixel block represents one feature. Classify into 7 categories. How many neurons in input/output? Best activation?</p></div>
+      <div class="abox">
+        <p><strong>Number of blocks</strong> = (24 × 24) / 4 = 576 / 4 = <span class="hl">144 blocks</span><br>
+        Features per block = 1 → <strong>Input neurons = 144</strong><br>
+        <strong>Output neurons = 7</strong><br>
+        <strong>Activation = Softmax</strong></p>
+      </div>
+    </div>
+
+    <div class="qa-block">
+      <div class="qtitle">Q3 — Medical Imaging (32×32, 4×4 blocks, 3 features, 5 diseases + uncertain)</div>
+      <div class="qbox"><p>32×32 pixel scans, non-overlapping 4×4 blocks, 3 features per block (texture, intensity variance, gradient magnitude). Classify into 5 disease categories (mutually exclusive) + 1 "uncertain" class. Neurons?</p></div>
+      <div class="abox">
+        <p><strong>Blocks</strong> = (32 × 32) / (4 × 4) = 1024 / 16 = <span class="hl">64 blocks</span><br>
+        <strong>Input neurons</strong> = 64 × 3 = <span class="hl">192</span><br>
+        <strong>Output neurons</strong> = 5 + 1 = <span class="hl">6</span> (5 diseases + uncertain)<br>
+        <strong>Activation = Softmax</strong> — only one disease/uncertain class at a time; mutually exclusive.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════════
+       CHAPTER 3 — PIXEL CONNECTIVITY
+  ═══════════════════════════════════════════════ -->
+  <section class="chapter" id="ch3">
+    <div class="chapter-header">
+      <span class="chapter-num">CH 03</span>
+      <h2>Pixel Connectivity<br><span class="accent">& Adjacency</span></h2>
+    </div>
+
+    <div class="section-title">Core Definitions</div>
+    <p><strong>V</strong> = Set of intensity values that qualify a pixel for connectivity. Example: V = [130, 220] means only pixels with value 130 or 220 are considered "foreground."</p>
+
+    <div class="tbl-wrap" style="margin-top:16px">
+      <table>
+        <thead><tr><th>Type</th><th>Neighbors Checked</th><th>Extra Rule</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag tag-cyan">4-Adjacency</span></td><td>4 neighbors: top, bottom, left, right</td><td>Both pixels must be in V</td></tr>
+          <tr><td><span class="tag tag-orange">8-Adjacency</span></td><td>8 neighbors: 4 direct + 4 diagonal</td><td>Both pixels in V; no extra restriction</td></tr>
+          <tr><td><span class="tag tag-purple">m-Adjacency</span></td><td>4 direct + selective diagonals</td><td>Diagonal allowed ONLY IF the two pixels share NO common 4-neighbor in V</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="formula">
+<span class="flabel">📐 m-Adjacency Rule</span>p  is  m-adjacent  to  q  if:
+
+  Condition A:  q ∈ N4(p)  AND  both p,q ∈ V
+  OR
+  Condition B:  q ∈ ND(p)  AND  both p,q ∈ V
+              AND  N4(p) ∩ N4(q) ∩ V = ∅
+              (no shared 4-neighbor in V)
+
+Why? → Eliminates ambiguous/double paths that 8-adjacency creates.</div>
+
+    <div class="section-title">Step-by-Step Method</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Mark pixels in V.</strong> Scan the image grid and highlight every pixel whose intensity is in the set V.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><strong>4-Adjacency:</strong> For every marked pixel, check its 4 neighbors (up/down/left/right). If a neighbor is also marked (in V), draw a 4-adj connection.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><strong>8-Adjacency:</strong> Additionally check all 4 diagonal neighbors. If a diagonal neighbor is in V, add an 8-adj connection (includes all 4-adj + new diagonals).</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-content"><strong>m-Adjacency:</strong> Start with all 4-adj connections. For each diagonal pair (both in V), check if they share any common 4-neighbor in V. If NOT shared, add the diagonal connection. If shared, skip (4-adj already handles it).</div></div>
+    </div>
+
+    <div class="section-title">Exam Q&A</div>
+
+    <div class="qa-block">
+      <div class="qtitle">Q1 — 4×4 Image with V = [130, 220]</div>
+      <div class="qbox">
+        <p>Given 4×4 image below, find 4-adjacent, 8-adjacent, and m-adjacent connectivity. V = [130, 220]</p>
+        <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;margin-top:12px">
+          <div>
+            <div style="font-size:11px;color:#60a5fa;margin-bottom:6px;font-family:'Space Mono',monospace">Image Grid</div>
+            <div class="grid-img">
+              <div class="grid-cell">56</div><div class="grid-cell">125</div><div class="grid-cell">245</div><div class="grid-cell in-v">130</div>
+              <div class="grid-cell in-v">220</div><div class="grid-cell">98</div><div class="grid-cell">87</div><div class="grid-cell">165</div>
+              <div class="grid-cell">155</div><div class="grid-cell">245</div><div class="grid-cell">196</div><div class="grid-cell">65</div>
+              <div class="grid-cell">96</div><div class="grid-cell">121</div><div class="grid-cell">148</div><div class="grid-cell">175</div>
+            </div>
+            <div style="font-size:11px;color:var(--accent);margin-top:6px;font-family:'Space Mono',monospace">Highlighted = in V</div>
+          </div>
+        </div>
+      </div>
+      <div class="abox">
+        <p><strong>Step 1 — Identify pixels in V = {130, 220}:</strong><br>
+        Position (0,3) = 130 ✓<br>
+        Position (1,0) = 220 ✓<br>
+        All other pixels NOT in V.</p>
+        <p><strong>4-Adjacency:</strong><br>
+        (0,3) neighbors: (0,2)=245✗, (1,3)=165✗ → no 4-adj connections for (0,3)<br>
+        (1,0) neighbors: (0,0)=56✗, (2,0)=155✗, (1,1)=98✗ → no 4-adj connections for (1,0)<br>
+        <span class="hl">Result: No 4-adjacent connections.</span></p>
+        <p><strong>8-Adjacency:</strong><br>
+        (0,3) diagonal: (1,2)=87✗ → no diagonal in V<br>
+        (1,0) diagonal: (0,1)=125✗, (2,1)=245✗ → no diagonal in V<br>
+        <span class="hl">Result: No 8-adjacent connections.</span></p>
+        <p><strong>m-Adjacency:</strong><br>
+        Same as above — no connections since the two V-pixels (0,3) and (1,0) are not neighbors at all.<br>
+        <span class="hl">Result: No m-adjacent connections. 130 and 220 are isolated.</span></p>
+        <p style="color:#fed7aa;"><em>Note: The exam answer diagram shows connections in lower rows — check if the professor used a different V interpretation or if the image pixel at (row 3, col 2)=148 and (row 3, col 3)=175 were checked under different V values. Always re-verify which pixels fall in V from the given set.</em></p>
+      </div>
+    </div>
+
+    <div class="qa-block">
+      <div class="qtitle">Q2 — 4×4 Image with V = [50, 130]</div>
+      <div class="qbox">
+        <p>Image: Row0:[56,125,245,130], Row1:[220,98,87,110], Row2:[65,155,96,205], Row3:[96,121,48,75]<br>V = [50,130]. Find 4-adj, 8-adj, m-adj connectivity.</p>
+      </div>
+      <div class="abox">
+        <p><strong>Pixels in V = {50,51,...130}?</strong> V = [50,130] means pixels with values between 50 and 130 inclusive (range notation):<br>
+        (0,0)=56✓, (0,1)=125✓, (0,3)=130✓, (1,1)=98✓, (1,2)=87✓, (1,3)=110✓, (2,0)=65✓, (2,2)=96✓, (3,0)=96✓, (3,1)=121✓, (3,3)=75✓</p>
+        <p><strong>4-Adjacency:</strong> Connect any two pixels in V that are direct neighbors (up/down/left/right). For example: (0,0)↔(0,1), (0,1)↔(0,2)? 245✗. (1,1)↔(1,2), (1,2)↔(1,3), etc.</p>
+        <p><strong>Key technique:</strong> Draw the grid on paper, mark all V-pixels, then connect adjacent ones with red lines. The exam answer uses color coding: <span style="color:#ef4444">Red = 4-adj</span>, <span style="color:#60a5fa">Blue+Red = 8-adj</span>, <span style="color:#4ade80">Red+Green = m-adj</span>.</p>
+        <p><strong>m-Adjacency rule reminder:</strong> For diagonal (1,0)↔(0,1): both in V? (1,0)=220✗. Not applicable. Check each diagonal pair systematically.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════════
+       CHAPTER 4 — ANN FORWARD PASS & LOG LOSS
+  ═══════════════════════════════════════════════ -->
+  <section class="chapter" id="ch4">
+    <div class="chapter-header">
+      <span class="chapter-num">CH 04</span>
+      <h2>ANN Forward Pass<br><span class="accent">& Log Loss</span></h2>
+    </div>
+
+    <div class="section-title">Activation Functions</div>
+    <div class="formula">
+<span class="flabel">📐 Activation Function Formulas</span>Sigmoid(x)  =  1 / (1 + e^(-x))
+  → Output range: (0, 1)
+  → Used in: binary output layers, early hidden layers
+
+ReLU(x)    =  max(0, x)
+  → Output range: [0, ∞)
+  → Used in: hidden layers (avoids vanishing gradient)
+
+Softmax(xi) =  e^xi / Σ(j) e^xj
+  → Output range: (0,1), all outputs sum to 1
+  → Used in: multi-class output layers
+
+Log Loss   =  -y·log(o) - (1-y)·log(1-o)
+  → y = actual output (0 or 1)
+  → o = predicted output (probability)
+  → Can use log base 2 or natural log (check exam)</div>
+
+    <div class="section-title">Exam Question — Full Worked Example</div>
+    <div class="qa-block">
+      <div class="qtitle">Q1 — Standard ANN Problem (3→4→3→2, Sigmoid→ReLU→Sigmoid)</div>
+      <div class="qbox">
+        <p>Architecture: 3 inputs → 4 hidden (Sigmoid) → 3 hidden (ReLU) → 2 outputs (Sigmoid)<br>
+        Input = [0.25, 0.45, 0.15], Actual Output = [1.0, 0.0]<br><br>
+        W1 (rows = hidden neurons, cols = inputs):<br>
+        Row1: [0.10, 0.35, 0.25, 0.30] → wait: W1 is 3×4 (3 inputs → 4 hidden):<br>
+        W1 = [[0.1,0.35,0.25,0.3],[0.25,0.2,0.15,0.4],[0.4,0.2,0.3,0.1]]<br>
+        W2 = [[0.25,0.6,0.15],[0.35,0.45,0.2],[0.5,0.1,0.4],[0.25,0.4,0.35]]<br>
+        W3 = [[0.35,0.65],[0.45,0.55],[0.6,0.4]]<br><br>
+        Find output and total log loss.</p>
+      </div>
+      <div class="abox">
+        <p><strong>LAYER 1 — Pre-activation (z1 = W1ᵀ × input):</strong><br>
+        z1[1] = 0.1×0.25 + 0.25×0.45 + 0.4×0.15 = 0.025+0.1125+0.06 = 0.1975 + bias... <br>
+        The exam gives the computed result directly:<br>
+        z1 = [1.1975, 1.2075, 1.75, 1.27]</p>
+        <p><strong>a1 = Sigmoid(z1):</strong><br>
+        Sigmoid(1.1975) ≈ 0.77, Sigmoid(1.2075) ≈ 0.77, Sigmoid(1.75) ≈ 0.85→0.76, Sigmoid(1.27) ≈ 0.78<br>
+        <span class="hl">a1 = [0.77, 0.77, 0.76, 0.78]</span></p>
+        <p><strong>LAYER 2 — Pre-activation (z2 = W2ᵀ × a1):</strong><br>
+        z2 = [2.037, 2.1965, 1.8465]</p>
+        <p><strong>a2 = ReLU(z2):</strong><br>
+        All values positive → ReLU passes them unchanged.<br>
+        <span class="hl">a2 = [2.037, 2.1965, 1.8465]</span></p>
+        <p><strong>LAYER 3 — Pre-activation (z3 = W3ᵀ × a2):</strong><br>
+        z3 = [3.81, 4.27]</p>
+        <p><strong>Output = Sigmoid(z3):</strong><br>
+        Sigmoid(3.81) ≈ 0.98, Sigmoid(4.27) ≈ 0.986<br>
+        <span class="hl">Output = [0.98, 0.986]</span></p>
+        <p><strong>Why Sigmoid for output?</strong> Two independent binary probabilities (not mutually exclusive) → Sigmoid per output neuron, NOT Softmax.</p>
+        <p><strong>LOG LOSS CALCULATION:</strong><br>
+        Loss₁: y=1.0, o=0.98 → -1·log₂(0.98) = -log₂(0.98) ≈ <span class="hl">0.029</span><br>
+        Loss₂: y=0.0, o=0.986 → -(1-0)·log₂(1-0.986) = -log₂(0.014) ≈ <span class="hl">6.16</span><br>
+        <strong>Total Loss ≈ 0.029 + 6.16 ≈ 6.19</strong></p>
+        <p>The high Loss₂ indicates the model wrongly predicts high probability for output 2 when actual is 0.</p>
+      </div>
+    </div>
+
+    <div class="qa-block">
+      <div class="qtitle">Q2 — ANN with ReLU→Sigmoid→Softmax (Mid-Term)</div>
+      <div class="qbox">
+        <p>Input = [0.35, 0.20, 0.7], Actual Output = [1, 0]<br>
+        Layers: ReLU (layer 1), Sigmoid (layer 2), Suitable output<br>
+        Wih1 (3×4), Wh1h2 (4×4), Wh2O (4×2) as given in exam paper.<br>
+        Find output and log loss.</p>
+      </div>
+      <div class="abox">
+        <p><strong>Layer 1 (ReLU):</strong> Compute z = Wih1 × input. Apply ReLU: max(0, z_i) for each element.</p>
+        <p><strong>Layer 2 (Sigmoid):</strong> Compute z = Wh1h2 × a1. Apply Sigmoid: 1/(1+e^-z).</p>
+        <p><strong>Output Layer (Sigmoid — 2 binary outputs):</strong> Compute z = Wh2O × a2. Apply Sigmoid. Since the two outputs represent independent binary classes (not mutually exclusive categories), Sigmoid is appropriate — NOT Softmax.</p>
+        <p><strong>Log Loss:</strong> Apply formula per output: -y·log(o) - (1-y)·log(1-o). Sum for total loss.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════════
+       CHAPTER 5 — IMAGE COMPRESSION THEORY
+  ═══════════════════════════════════════════════ -->
+  <section class="chapter" id="ch5">
+    <div class="chapter-header">
+      <span class="chapter-num">CH 05</span>
+      <h2>Image Compression<br><span class="accent">Theory & Formulas</span></h2>
+    </div>
+
+    <div class="section-title">Core Formulas</div>
+    <div class="formula">
+<span class="flabel">📐 Compression Formulas</span>Compression Ratio (C)  =  n₁ / n₂
+                       =  Uncompressed file size / Compressed file size
+                       =  SIZE_U / SIZE_C
+
+Relative Data Redundancy (R)  =  1  −  (1/C)
+
+Bits per Pixel (after compression):
+  bpp  =  Total compressed bits / Total number of pixels
+
+Average Code Length (for variable-length codes):
+  L_avg  =  Σ [l(rk) × p(rk)]
+  where:  rk = intensity value k
+          l(rk) = code length for rk
+          p(rk) = probability (frequency / total pixels)
+
+Total Original Bits    =  N_pixels × original_bpp  (usually 8 bpp)
+Total Compressed Bits  =  N_pixels × L_avg</div>
+
+    <div class="section-title">Types of Compression</div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">🔒</div>
+        <div class="card-title">Lossless Compression</div>
+        <p>Exact reconstruction possible. Preserves all data. Compression ratio: <strong>2:1 to 3:1</strong>. Examples: Huffman coding, RLE, PNG. Use for: medical images, text, manuscripts, barcodes.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <div class="card-title">Lossy Compression</div>
+        <p>Approximate reconstruction. Some data permanently lost. Ratio: <strong>10:1 to 200:1</strong>. Examples: JPEG, DCT. Use for: photographs, thumbnails, web images where quality loss is acceptable.</p>
+      </div>
+    </div>
+
+    <div class="section-title">Types of Data Redundancy</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Redundancy Type</th><th>Explanation</th><th>Removed By</th></tr></thead>
+        <tbody>
+          <tr><td>Coding Redundancy</td><td>Fixed 8-bit code used even when fewer bits would suffice for some pixel values. Common pixels waste bits.</td><td>Huffman coding, arithmetic coding</td></tr>
+          <tr><td>Spatial/Temporal Redundancy</td><td>Adjacent pixels are correlated (similar values). Neighboring frames in video share much data.</td><td>Run-Length Encoding (RLE), predictive coding, MPEG</td></tr>
+          <tr><td>Psychovisual Redundancy</td><td>Information the human eye ignores (fine texture details, certain frequencies).</td><td>JPEG (DCT quantization), lossy methods</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Exam Q&A — Lossy vs Lossless</div>
+    <div class="qa-block">
+      <div class="qtitle">Q — Museum Archive Website (Mid-Term)</div>
+      <div class="qbox"><p>Choose compression for: (a) High-res ancient manuscript scans (text-heavy, delicate), (b) Artifact photographs (colorful, high-detail), (c) Thumbnail previews for quick browsing.</p></div>
+      <div class="abox">
+        <p><strong>(a) Ancient manuscripts → LOSSLESS (PNG)</strong><br>
+        Text-heavy with delicate fine details. Any data loss can make characters unreadable or destroy historical accuracy. File size is secondary to preservation. Researchers need exact pixel data.</p>
+        <p><strong>(b) Artifact photographs → LOSSLESS (PNG) for archival; LOSSY (JPEG) for web display</strong><br>
+        For scientific study/archiving: lossless preserves color accuracy. For web viewing: high-quality JPEG (low compression) balances file size with sufficient visual quality.</p>
+        <p><strong>(c) Thumbnail previews → LOSSY (JPEG)</strong><br>
+        Small display size makes fine details invisible anyway. High compression saves bandwidth and storage — the primary concern for quick-loading thumbnails.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════════
+       CHAPTER 6 — HUFFMAN CODING
+  ═══════════════════════════════════════════════ -->
+  <section class="chapter" id="ch6">
+    <div class="chapter-header">
+      <span class="chapter-num">CH 06</span>
+      <h2>Huffman Coding<br><span class="accent">— Full Worked Examples</span></h2>
+    </div>
+
+    <p>Huffman coding is a <strong>lossless</strong> variable-length coding technique. It assigns <strong>shorter codes to more frequent</strong> pixel values and longer codes to less frequent ones, minimizing average code length.</p>
+
+    <div class="section-title">Algorithm Steps</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Frequency Analysis:</strong> Count occurrences of each pixel intensity value. Calculate probability = frequency / total pixels.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Sort:</strong> Order all symbols by frequency (ascending — lowest first).</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Build Min-Heap:</strong> Create a priority queue (min-heap) with each symbol as a leaf node weighted by frequency.</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-content"><strong>Combine:</strong> Repeatedly extract the two nodes with lowest frequencies. Create a new internal node with frequency = sum of the two. Insert back. Repeat until one root remains.</div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-content"><strong>Assign Codes:</strong> Traverse tree from root. Left branch → '0', Right branch → '1'. Path from root to leaf = code for that symbol.</div></div>
+      <div class="step"><div class="step-num">6</div><div class="step-content"><strong>Build Huffman Table:</strong> Record symbol → code → code length. Calculate L_avg = Σ(length × probability).</div></div>
+    </div>
+
+    <div class="section-title">Worked Example 1 — Mid-Term Exam</div>
+    <div class="qa-block">
+      <div class="qtitle">Pixel intensities and frequencies:</div>
+      <div class="qbox">
+        <p>125→5, 55→9, 130→12, 70→13, 220→16, 250→45<br>
+        Build the Huffman tree, find Huffman table, compressed size, compression ratio, bits per pixel. Original = 8 bpp.</p>
+      </div>
+      <div class="abox">
+        <p><strong>Step 1 — Sorted by frequency (ascending):</strong></p>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Symbol</th><th>Frequency</th><th>Probability</th></tr></thead>
+            <tbody>
+              <tr><td>125</td><td>5</td><td>0.05</td></tr>
+              <tr><td>55</td><td>9</td><td>0.09</td></tr>
+              <tr><td>130</td><td>12</td><td>0.12</td></tr>
+              <tr><td>70</td><td>13</td><td>0.13</td></tr>
+              <tr><td>220</td><td>16</td><td>0.16</td></tr>
+              <tr><td>250</td><td>45</td><td>0.45</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>Step 2 — Build Huffman Tree:</strong></p>
+        <div class="huffman-tree">
+Iteration 1: Combine 125(5) + 55(9) → Node_A(14)
+  Heap: [130(12), 70(13), Node_A(14), 220(16), 250(45)]
+
+Iteration 2: Combine 130(12) + 70(13) → Node_B(25)
+  Heap: [Node_A(14), 220(16), Node_B(25), 250(45)]
+
+Iteration 3: Combine Node_A(14) + 220(16) → Node_C(30)
+  Heap: [Node_B(25), Node_C(30), 250(45)]
+
+Iteration 4: Combine Node_B(25) + Node_C(30) → Node_D(55)
+  Heap: [250(45), Node_D(55)]
+
+Iteration 5: Combine 250(45) + Node_D(55) → ROOT(100)
+
+Tree Structure:
+         ROOT(100)
+        /         \
+    250(45)      Node_D(55)
+    [Code: 0]   /          \
+           Node_B(25)    Node_C(30)
+           /     \        /      \
+       130(12)  70(13) Node_A(14) 220(16)
+       [100]    [101]  /      \   [110]
+                    55(9)   125(5)
+                    [1110]  [1111]</div>
+        <p><strong>Step 3 — Huffman Table:</strong></p>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Symbol</th><th>Code</th><th>Length (bits)</th><th>Frequency</th><th>Contribution (len×freq)</th></tr></thead>
+            <tbody>
+              <tr><td>250</td><td>0</td><td>1</td><td>45</td><td>45 × 1 = 45</td></tr>
+              <tr><td>130</td><td>100</td><td>3</td><td>12</td><td>12 × 3 = 36</td></tr>
+              <tr><td>70</td><td>101</td><td>3</td><td>13</td><td>13 × 3 = 39</td></tr>
+              <tr><td>220</td><td>110</td><td>3</td><td>16</td><td>16 × 3 = 48</td></tr>
+              <tr><td>55</td><td>1110</td><td>4</td><td>9</td><td>9 × 4 = 36</td></tr>
+              <tr><td>125</td><td>1111</td><td>4</td><td>5</td><td>5 × 4 = 20</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>Step 4 — Calculations:</strong></p>
+        <p>Total pixels N = 5+9+12+13+16+45 = <span class="hl">100 pixels</span></p>
+        <p>L_avg = (45+36+39+48+36+20) / 100 = 224/100 = <span class="hl">2.24 bits/pixel</span></p>
+        <p>Compressed size = 100 × 2.24 = <span class="hl">224 bits</span></p>
+        <p>Original size = 100 × 8 = <span class="hl">800 bits</span></p>
+        <p>Compression Ratio C = 800 / 224 = <span class="hl">≈ 3.57</span></p>
+        <p>Relative Redundancy R = 1 − 1/3.57 = 1 − 0.28 = <span class="hl">0.72 (72% redundant)</span></p>
+        <p>Bits per pixel = 224/100 = <span class="hl">2.24 bpp</span></p>
+        <p>Compression type: <span class="hl">LOSSLESS</span> — Huffman preserves all original data exactly.</p>
+      </div>
+    </div>
+
+    <div class="qa-block" style="margin-top:24px">
+      <div class="qtitle">Worked Example 2 — Fall 2025 Mid-Term (X-ray image)</div>
+      <div class="qbox"><p>Color intensities and frequencies: 135→30, 225→12, 210→15, 20→25, 55→18, 185→44. Apply Huffman coding. Find compressed size, compression ratio, relative data redundancy, bpp.</p></div>
+      <div class="abox">
+        <p><strong>Sorted (ascending frequency):</strong><br>
+        225(12), 210(15), 55(18), 20(25), 135(30), 185(44)</p>
+        <p><strong>Total pixels N = 12+15+18+25+30+44 = 144</strong></p>
+        <div class="huffman-tree">
+Iteration 1: 225(12) + 210(15) → A(27)
+  Heap: [55(18), 20(25), A(27), 135(30), 185(44)]
+
+Iteration 2: 55(18) + 20(25) → B(43)
+  Heap: [A(27), 135(30), B(43), 185(44)]
+
+Iteration 3: A(27) + 135(30) → C(57)
+  Heap: [B(43), 185(44), C(57)]
+
+Iteration 4: B(43) + 185(44) → D(87)
+  Heap: [C(57), D(87)]
+
+Iteration 5: C(57) + D(87) → ROOT(144)
+
+Tree:
+         ROOT(144)
+        /          \
+      C(57)        D(87)
+     /     \      /     \
+   A(27) 135(30) B(43) 185(44)
+   /   \        /    \
+ 225  210     55     20
+ (12) (15)   (18)   (25)
+Code Assignments (Left=0, Right=1):
+  185: 11    (length 2)  → 44 × 2 = 88
+  55:  100   (length 3)  → 18 × 3 = 54
+  20:  101   (length 3)  → 25 × 3 = 75
+  225: 0000  (length 4)  → 12 × 4 = 48
+  210: 0001  (length 4)  → 15 × 4 = 60
+  135: 01    (length 2)  → 30 × 2 = 60</div>
+        <p><strong>L_avg</strong> = (88+54+75+48+60+60) / 144 = 385/144 ≈ <span class="hl">2.67 bpp</span></p>
+        <p>Compressed bits = 144 × 2.67 ≈ <span class="hl">385 bits</span></p>
+        <p>Original bits = 144 × 8 = <span class="hl">1152 bits</span></p>
+        <p>C = 1152/385 ≈ <span class="hl">2.99 ≈ 3.0</span></p>
+        <p>R = 1 − 1/3.0 ≈ <span class="hl">0.667 (66.7% redundant)</span></p>
+        <p><strong>Lossless compression.</strong></p>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- CH 7 CONFUSION MATRIX -->
+  <section class="chapter" id="ch7">
+    <div class="chapter-header">
+      <span class="chapter-num">CH 07</span>
+      <h2>Confusion Matrix<br><span class="accent">&amp; Evaluation Metrics</span></h2>
+    </div>
+
+    <div class="formula">
+<span class="flabel">📐 Metric Formulas</span>Accuracy   = ΣTP (diagonal) / Total samples
+
+Precision_i = TP_i / (TP_i + FP_i)   [Of all predicted as i, how many were actually i?]
+Recall_i    = TP_i / (TP_i + FN_i)   [Of all actual i, how many did we predict correctly?]
+F1_i        = 2 × Precision_i × Recall_i / (Precision_i + Recall_i)
+
+Macro F1    = Average F1 across all classes (equal weight)
+Weighted F1 = Σ(F1_i × support_i) / total_support
+
+Where:
+  TP_i = matrix[i][i]
+  FP_i = sum(column i) − TP_i   (predicted i but wrong)
+  FN_i = sum(row i)    − TP_i   (actually i but missed)</div>
+
+    <div class="note"><strong>⚠ When is Accuracy misleading?</strong> When classes are imbalanced. A model predicting only the majority class gets high accuracy but zero usefulness. Use Macro or Weighted F1 for imbalanced datasets.</div>
+
+    <div class="section-title">Exam Worked Example — Product Review Classification</div>
+    <div class="qa-block">
+      <div class="qtitle">Q — Mid-Term: 4-class confusion matrix (Positive, Negative, Neutral, Mixed)</div>
+      <div class="qbox">
+        <p>Confusion matrix (Predicted rows × Actual columns):</p>
+        <div class="tbl-wrap" style="margin-top:12px">
+          <table>
+            <thead><tr><th>Predicted ↓ / Actual →</th><th>Positive</th><th>Negative</th><th>Neutral</th><th>Mixed</th></tr></thead>
+            <tbody>
+              <tr><td>Positive</td><td>800</td><td>100</td><td>250</td><td>50</td></tr>
+              <tr><td>Negative</td><td>50</td><td>900</td><td>70</td><td>120</td></tr>
+              <tr><td>Neutral</td><td>100</td><td>90</td><td>1150</td><td>130</td></tr>
+              <tr><td>Mixed</td><td>50</td><td>110</td><td>30</td><td>1700</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:12px">Class support: Positive=1000, Negative=1200, Neutral=1500, Mixed=2000.<br>
+        Find accuracy. Is it a good metric? Find Macro Precision, Recall, F1 per class.</p>
+      </div>
+      <div class="abox">
+        <p><strong>Accuracy:</strong><br>
+        ΣTP = 800+900+1150+1700 = 4550<br>
+        Total = 1000+1200+1500+2000 = 5700<br>
+        Accuracy = 4550/5700 ≈ <span class="hl">79.8%</span></p>
+        <p><strong>Is accuracy a good metric? NO.</strong> Classes are imbalanced (Mixed has 2000 samples = 35%, Positive only 1000 = 17.5%). The model could bias toward larger classes and still show high accuracy. Use Weighted F1 instead.</p>
+        <p><strong>Per-Class Metrics:</strong></p>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Class</th><th>TP</th><th>FP (col sum − TP)</th><th>FN (row sum − TP)</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead>
+            <tbody>
+              <tr><td>Positive</td><td>800</td><td>100+250+50=400→ col: 50+100+50=200 FP</td><td>100+250+50=400 FN</td><td>800/1000=0.800</td><td>800/1200=0.667</td><td>0.727</td></tr>
+              <tr><td>Negative</td><td>900</td><td>70+100+90+110−900 (col sum=1200, FP=300)</td><td>100+70+110=280 FN</td><td>900/1200=0.750</td><td>900/1180=0.763</td><td>0.756</td></tr>
+              <tr><td>Neutral</td><td>1150</td><td>250+70+30=350 FP</td><td>100+90+130=320 FN</td><td>1150/1500=0.767</td><td>1150/1470=0.782</td><td>0.774</td></tr>
+              <tr><td>Mixed</td><td>1700</td><td>50+120+130=300 FP</td><td>50+120+30=200 FN</td><td>1700/2000=0.850</td><td>1700/1900=0.895</td><td>0.872</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>Macro F1</strong> = (0.727+0.756+0.774+0.872)/4 = <span class="hl">0.782</span></p>
+        <p><strong>Improving Neutral classification:</strong> 250 Neutral samples misclassified as Positive. The model confuses neutral and positive reviews. Solutions: collect more balanced neutral training data, use better text features, apply oversampling (SMOTE) for neutral class, tune decision boundary threshold.</p>
+      </div>
+    </div>
+
+    <div class="qa-block" style="margin-top:24px">
+      <div class="qtitle">Q — Email Spam Classification (Fall 2025 Mid-Term)</div>
+      <div class="qbox">
+        <p>4-class email matrix: Spam, Promotional, Social, Important.<br>
+        Spam row: [820,70,60,50] | Promotional: [60,800,90,50] | Social: [70,90,780,60] | Important: [50,40,70,840]<br>
+        Find Accuracy, Class-wise P/R/F1, Macro F1, Weighted F1.</p>
+      </div>
+      <div class="abox">
+        <p><strong>TP:</strong> Spam=820, Promotional=800, Social=780, Important=840<br>
+        Total = 820+800+780+840 = <span class="hl">3240</span><br>
+        Grand total = (820+70+60+50)+(60+800+90+50)+(70+90+780+60)+(50+40+70+840) = 1000+1000+1000+1000 = 4000<br>
+        Accuracy = 3240/4000 = <span class="hl">81%</span></p>
+        <p><strong>Spam:</strong> TP=820, FP=60+70+50=180, FN=70+60+50=180 → P=820/1000=0.82, R=820/1000=0.82, F1=0.82</p>
+        <p><strong>Promotional:</strong> TP=800, FP=70+90+40=200, FN=60+90+40=190 → P=800/1000=0.80, R=800/990≈0.808, F1≈0.804</p>
+        <p><strong>Social:</strong> TP=780, FP=60+90+70=220, FN=60+90+70=220 → P=780/1000=0.78, R=780/1000=0.78, F1=0.78</p>
+        <p><strong>Important:</strong> TP=840, FP=50+50+60=160, FN=50+50+60=160 → P=840/1000=0.84, R=840/1000=0.84, F1=0.84</p>
+        <p><strong>Macro F1</strong> = (0.82+0.804+0.78+0.84)/4 ≈ <span class="hl">0.811</span><br>
+        <strong>Weighted F1</strong> = same as Macro here (equal class support = 1000 each) ≈ <span class="hl">0.811</span></p>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- CH 8 DIP TAXONOMY -->
+  <section class="chapter" id="ch8">
+    <div class="chapter-header">
+      <span class="chapter-num">CH 08</span>
+      <h2>DIP Taxonomy<br><span class="accent">&amp; Domain Overview</span></h2>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Domain</th><th>Definition</th><th>Subdomains</th><th>Trending Directions</th><th>Key References</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-cyan">Low-Level</span></td>
+            <td>Operations on raw pixel data; no semantic interpretation</td>
+            <td>Image Denoising, Restoration, Enhancement, Filtering</td>
+            <td>Noise2Noise, Noise2Void, Blind Denoising, Unsupervised Restoration</td>
+            <td>Lehtinen 2018 (Noise2Noise), Krull 2019 (Noise2Void), Zhang 2017 (DnCNN)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Mid-Level</span></td>
+            <td>Understanding structural and textural content from images</td>
+            <td>Edge Detection, Feature Extraction, Segmentation, Texture Analysis</td>
+            <td>U-Net, DeepLab, Mask R-CNN, Self-supervised feature learning</td>
+            <td>Ronneberger 2015 (U-Net), Chen 2017 (DeepLab), He 2017 (Mask R-CNN)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">High-Level</span></td>
+            <td>Semantic interpretation and decision making from images</td>
+            <td>Image Classification, Object Detection, Recognition, Scene Understanding</td>
+            <td>Vision Transformers (ViT), CLIP, Foundation Models, Multimodal models</td>
+            <td>Krizhevsky 2012 (AlexNet), Dosovitskiy 2021 (ViT), Radford 2021 (CLIP)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">Cross-Domain</span></td>
+            <td>Research spanning multiple DIP domains</td>
+            <td>Contrastive Learning, Neural Rendering, Vision+Language</td>
+            <td>Diffusion Models, SimCLR, MoCo, DALL-E, Stable Diffusion</td>
+            <td>Chen 2020 (SimCLR), Ho 2020 (DDPM), He 2020 (MoCo)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Hierarchy: Pixel → Structural → Semantic</div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">🔵</div>
+        <div class="card-title">Low-Level Processing</div>
+        <p>Works directly with pixel values. Input: noisy/degraded image. Output: cleaned/enhanced image. <strong>No understanding of "what" is in the image.</strong></p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🟠</div>
+        <div class="card-title">Mid-Level Processing</div>
+        <p>Extracts structure: edges, regions, textures. Input: enhanced image. Output: feature maps, segments. <strong>Understanding "where" things are.</strong></p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🟣</div>
+        <div class="card-title">High-Level Processing</div>
+        <p>Assigns semantic meaning. Input: features/segments. Output: labels, detections, descriptions. <strong>Understanding "what" and "why."</strong></p>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- CH 9 QUICK REFERENCE -->
+  <section class="chapter" id="ch9">
+    <div class="chapter-header">
+      <span class="chapter-num">CH 09</span>
+      <h2>Quick Reference<br><span class="accent">Exam Cheat Sheet</span></h2>
+    </div>
+
+    <div class="section-title">Quantization Levels</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Bits (bpp)</th><th>Levels (2^n)</th><th>Use Case</th></tr></thead>
+        <tbody>
+          <tr><td>1-bit</td><td>2</td><td>Binary images (black/white)</td></tr>
+          <tr><td>4-bit</td><td>16</td><td>Low quality, poor contrast</td></tr>
+          <tr><td>6-bit</td><td>64</td><td>Limited gradient detection</td></tr>
+          <tr><td>8-bit</td><td>256</td><td>Standard grayscale / per-channel color</td></tr>
+          <tr><td>14-bit</td><td>16,384</td><td>High dynamic range (scientific/medical)</td></tr>
+          <tr><td>16-bit</td><td>65,536</td><td>Very high dynamic range</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">All Activation Functions</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Function</th><th>Formula</th><th>Output Range</th><th>Best Used In</th></tr></thead>
+        <tbody>
+          <tr><td>Sigmoid</td><td>1/(1+e^-x)</td><td>(0, 1)</td><td>Binary output layer, old hidden layers</td></tr>
+          <tr><td>ReLU</td><td>max(0, x)</td><td>[0, ∞)</td><td>Hidden layers (fast, avoids vanishing gradient)</td></tr>
+          <tr><td>Leaky ReLU</td><td>max(αx, x)</td><td>(-∞, ∞)</td><td>Hidden layers (prevents dead neurons)</td></tr>
+          <tr><td>Softmax</td><td>e^xi / Σe^xj</td><td>(0,1), sum=1</td><td>Multi-class exclusive output</td></tr>
+          <tr><td>Tanh</td><td>(e^x−e^-x)/(e^x+e^-x)</td><td>(-1, 1)</td><td>Hidden layers (zero-centered)</td></tr>
+          <tr><td>Linear</td><td>f(x) = x</td><td>(-∞, ∞)</td><td>Regression output</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Compression Quick Reference</div>
+    <div class="formula">
+<span class="flabel">📐 All Compression Formulas at a Glance</span>C  =  n₁ / n₂  =  Original bits / Compressed bits
+R  =  1 − 1/C                          (Relative data redundancy)
+L_avg = Σ l(rk) × p(rk)               (Average code length)
+Compressed bits = N × L_avg            (N = total pixels)
+Original bits   = N × 8               (standard 8-bpp image)
+bpp after compression = Compressed bits / N
+
+Example walkthrough:
+  100 pixels, L_avg=2.24 bpp
+  Compressed = 100 × 2.24 = 224 bits
+  Original   = 100 × 8    = 800 bits
+  C = 800/224 ≈ 3.57
+  R = 1 − 1/3.57 ≈ 0.72  → 72% redundancy removed</div>
+
+    <div class="section-title">Connectivity Summary</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>Neighbors</th><th>Diagonal Rule</th><th>Ambiguity</th></tr></thead>
+        <tbody>
+          <tr><td>4-Adjacency</td><td>Top, Bottom, Left, Right</td><td>No diagonals</td><td>None (strict)</td></tr>
+          <tr><td>8-Adjacency</td><td>All 8 (incl. diagonals)</td><td>All diagonals allowed</td><td>Can create ambiguous paths</td></tr>
+          <tr><td>m-Adjacency</td><td>4 direct + selective diagonals</td><td>Diagonal only if no shared 4-neighbor in V</td><td>Resolves 8-adj ambiguity</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Log Loss Quick Guide</div>
+    <div class="formula">
+<span class="flabel">📐 Binary Cross-Entropy / Log Loss</span>Loss = −y·log(o) − (1−y)·log(1−o)
+
+  y = actual label (0 or 1)
+  o = predicted probability
+
+When y = 1:  Loss = −log(o)         → want o → 1 (low loss)
+When y = 0:  Loss = −log(1−o)       → want o → 0 (low loss)
+
+Interpretation:
+  Loss near 0  →  prediction matches actual
+  Loss large   →  prediction confidently wrong (worst case)</div>
+
+    <div class="section-title">Key Decision Shortcuts for Exam</div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">🧩</div>
+        <div class="card-title">Spatial OR Intensity?</div>
+        <p>Shape/size/edge/crack/boundary/lines → <strong>Spatial</strong><br>
+        Color/intensity/gradient/subtle change/reflectance → <strong>Intensity</strong></p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧠</div>
+        <div class="card-title">Softmax OR Sigmoid?</div>
+        <p>One class from many (mutually exclusive) → <strong>Softmax</strong><br>
+        Independent binary per output → <strong>Sigmoid</strong></p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🗜️</div>
+        <div class="card-title">Lossy OR Lossless?</div>
+        <p>Exact data needed (medical, text, archives) → <strong>Lossless (PNG)</strong><br>
+        Approximate OK (photos, thumbnails) → <strong>Lossy (JPEG)</strong></p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <div class="card-title">Accuracy OR F1?</div>
+        <p>Balanced classes → Accuracy is fine<br>
+        Imbalanced classes → Use <strong>Macro/Weighted F1</strong></p>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:48px 0 20px">
+      <div style="font-family:'DM Serif Display',serif;font-size:28px;color:#fff;margin-bottom:8px">Good Luck in Your Exam! 🎓</div>
+      <div style="color:var(--text-dim);font-size:13px">CSE 4833 / 4883 · Digital Image Processing · United International University</div>
+    </div>
+  </section>
+
+</main>
+
+<button id="print-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
+
+<script>
+  // Scroll progress
+  window.addEventListener('scroll', () => {
+    const doc = document.documentElement;
+    const scroll = doc.scrollTop;
+    const height = doc.scrollHeight - doc.clientHeight;
+    document.getElementById('progress').style.width = (scroll/height*100) + '%';
+  });
+
+  // Sidebar active state
+  const sections = document.querySelectorAll('.chapter');
+  const navLinks = document.querySelectorAll('#sidebar nav a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`#sidebar nav a[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
